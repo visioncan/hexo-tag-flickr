@@ -1,0 +1,15 @@
+{
+  "name": "hexo-tag-flickr",
+  "version": "0.1.0",
+  "description": "Use flickr image plugin for Hexo",
+  "main": "index",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/visioncan/hexo-tag-flickr.git"
+  },
+  "author": "visioncan <visioncan@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "async": "~0.2.10"
+  }
+}
