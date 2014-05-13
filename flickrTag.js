@@ -128,7 +128,7 @@ FlickrTag.prototype.imgFormat = function (index, jsonData) {
     }
 
     imgAttr.class = flickrTags[index].classes.join(' ');
-    imgAttr.title = jsonData.photo._content;
+    imgAttr.alt = jsonData.photo.title._content;
 
     return htmlTag('img', imgAttr);
 };
