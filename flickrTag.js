@@ -1,8 +1,8 @@
-var http        = require('http'),
+var https       = require('https'),
     util        = require('util'),
     htmlTag     = hexo.util.html_tag,
     APIKey      = hexo.config.flickr_api_key || false,
-    APIURL      = "http://api.flickr.com/services/rest/?",
+    APIURL      = 'https://api.flickr.com/services/rest/?',
     URL_PATTERN = 'http://farm%s.staticflickr.com/%s/%s_%s%s.%s',
     PHOTO_SIZE = {
         's': { width: 75, height: 75 },
@@ -65,7 +65,7 @@ FlickrTag.prototype.httpGet = function (index, callback) {
         "&format=json" +
         "&nojsoncallback=1";
 
-    http.get(url, function(res) {
+    https.get(url, function(res) {
         var data = '';
 
         res.on('data', function(chunk) {
