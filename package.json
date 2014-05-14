@@ -1,15 +1,26 @@
 {
   "name": "hexo-tag-flickr",
   "version": "0.1.0",
-  "description": "Use flickr image plugin for Hexo",
+  "description": "Embed flickr photo tag plugin for Hexo",
   "main": "index",
   "repository": {
     "type": "git",
     "url": "https://github.com/visioncan/hexo-tag-flickr.git"
   },
-  "author": "visioncan <visioncan@gmail.com>",
+  "keywords": [
+    "hexo",
+    "blog",
+    "flickr"
+  ],
+  "author": {
+    "name": "visioncan",
+    "email": "visioncan@gmail.com",
+    "url": "http://blog.visioncan.com"
+  },
   "license": "MIT",
   "dependencies": {
-    "async": "~0.2.10"
+  },
+  "bugs": {
+    "url": "https://github.com/visioncan/hexo-tag-flickr/issues"
   }
 }
