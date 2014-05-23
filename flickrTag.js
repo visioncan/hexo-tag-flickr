@@ -128,7 +128,7 @@ FlickrTag.prototype.imgFormat = function (index, jsonData) {
     }
 
     imgAttr.class = flickrTags[index].classes.join(' ');
-    imgAttr.alt = jsonData.photo.title._content;
+    imgAttr.alt = this.htmlEscape(jsonData.photo.title._content);
 
     return htmlTag('img', imgAttr);
 };
@@ -172,4 +172,18 @@ FlickrTag.prototype.convertAttr = function (args) {
         }*/
     }
     return attrs;
+};
+
+/**
+ * Replace string to HTML encode if img tag's alt attribute sting with &,",',<,>
+ * @param  {string} str string form img tag's alt 
+ * @return {string}     HTML encode string
+ */
+FlickrTag.prototype.htmlEscape = function (str) {
+    return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
 };
