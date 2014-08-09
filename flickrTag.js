@@ -16,48 +16,121 @@ var https       = require('https'),
         'b': { width: 1024 },
         'o': {}
     },
-    rPhotoId = /(\d+){5,}/,
+    escapeTagName = 'hexoflickrescape',
+    rPhotoId = /\d{5,}/,
+    rTagInContent = /hexoflickrescape(\d+)/g,
     rPhotoSize = /^[sqtmnzcbo\-]$/,
     rLinkBool = /^[01]|true|false$/;
 
-
 var FlickrTag = function () {
+    this.flickrStorage = {};
     this.flickrTags = [];
-    this.completedCounter = 0;
+    this.postCounter = [];
 };
 
-module.exports = FlickrTag;
+FlickrTag.instance = null;
+FlickrTag.getInstance = function () {
+    if (this.instance === null) {
+        this.instance = new FlickrTag();
+    }
+    return this.instance;
+};
 
-FlickrTag.prototype.getPhotos = function (tags, data, allComplete) {
-    var i    = 0,
-        self = this;
+module.exports = FlickrTag.getInstance();
 
-    while (i < tags.length) {
-        this.flickrTags[i] = this.convertAttr(tags[i]);
+FlickrTag.prototype.add = function (tag) {
+    this.flickrTags.push(this.convertAttr(tag));
+};
 
-        this.httpGet(i, function (idx, jsondata) {
-            data.content = data.content.replace( '<hexoescape>' + idx + '</hexoescape>',
-                self.imgFormat(idx, jsondata)
+FlickrTag.prototype.length = function () {
+    return this.flickrTags.length;
+};
+
+/**
+ * Replace flickr tag in post content
+ * Use `postCounter` to store every post and its flickr tag fetch counts as value
+ *
+ * @param  {Object}   data
+ * @param  {Function} callback
+ */
+FlickrTag.prototype.replacePhotos = function (data, callback) {
+    this.postCounter.push(0);
+    var i         = 0,
+        _this     = this,
+        postIndex = this.postCounter.length - 1,
+        tagsInContent = data.content.match(rTagInContent);
+
+    while (i < tagsInContent.length) {
+        var idx      = tagsInContent[i].replace(escapeTagName, ''),
+            flickrID = _this.flickrTags[idx].id;
+
+        if (_this.flickrStorage.hasOwnProperty(flickrID)) {
+            data.content = data.content.replace( '<img data-tag="' + escapeTagName + idx +'">',
+                _this.imgFormat(idx, _this.flickrStorage[flickrID])
             );
 
-            if (self.completedCounter === self.flickrTags.length) {
-                allComplete(data);
-            }
-        });
+            _this.postCounter[postIndex] ++;
 
+            if (_this.postCounter[postIndex] === tagsInContent.length) {
+                if (_this.sumOfPostCounter() === _this.flickrTags.length) {
+                    _this.flickrTags = [];
+                    _this.postCounter = [];
+                }
+                callback(data);
+            }
+
+        } else {
+            _this.httpGet(idx, postIndex, function (idx, jsondata) {
+                _this.flickrStorage[_this.flickrTags[idx].id] = jsondata;
+
+                data.content = data.content.replace( '<img data-tag="' + escapeTagName + idx +'">',
+                    _this.imgFormat(idx, jsondata)
+                );
+
+                // console.log(util.format('http got photo at post %s(%d) tag: %d', data.title, postIndex, _this.postCounter[postIndex]));
+
+                if (_this.postCounter[postIndex] === tagsInContent.length) {
+                    if (_this.sumOfPostCounter() === _this.flickrTags.length) {
+                        _this.flickrTags = [];
+                        _this.postCounter = [];
+                    }
+                    callback(data);
+                }
+            });
+        }
         i++;
     }
 };
 
+/**
+ * Sum array PostCounter's value
+ *
+ * @return {Number}
+ */
+FlickrTag.prototype.sumOfPostCounter = function () {
+    var sum = this.postCounter.reduce(function (p, c) { return p + c; }, 0);
+    return sum;
+};
+
+/**
+ * Check post has flickr tag or not
+ *
+ * @param  {Object}  data Post contents
+ * @return {Boolean}
+ */
+FlickrTag.prototype.hasFlickrTag = function (data) {
+    return data.content.indexOf(escapeTagName) !== -1;
+};
 
 /**
  * Flickr api http request
+ *
  * @param  {number} index      The index of flickr tag want to request
  * @param  {Function} callback Run callback when fetch end
  */
-FlickrTag.prototype.httpGet = function (index, callback) {
-    var self = this;
-    var photoId = this.flickrTags[index].id;
+FlickrTag.prototype.httpGet = function (idx, postIndex, callback) {
+    var _this = this;
+    var photoId = this.flickrTags[idx].id;
     var url = APIURL +
         "&method=flickr.photos.getInfo" +
         "&api_key=" + APIKey +
@@ -65,42 +138,52 @@ FlickrTag.prototype.httpGet = function (index, callback) {
         "&format=json" +
         "&nojsoncallback=1";
 
-    https.get(url, function(res) {
+    https.get(url, function (res) {
         var data = '';
 
-        res.on('data', function(chunk) {
+        res.on('data', function (chunk) {
             data += chunk;
         });
 
-        res.on('end', function() {
-            self.completedCounter ++;
-            callback(index, JSON.parse(data));
+        res.on('end', function () {
+            var result = JSON.parse(data);
+            if (result.stat === 'ok') {
+                _this.postCounter[postIndex] ++;
+                callback(idx, JSON.parse(data));
+            } else {
+                hexo.log.err('Flickr Tag Error: ' + photoId + ' ' +  result.message);
+            }
         });
-    }).on('error', function(e) {
-        throw new Error('fetch flickr API error: ' + e);
+    }).on('error', function (e) {
+        hexo.log.err('Fetch Flickr API error: ' + e);
     });
 };
 
-
 /**
- * format flickr image url and generate html tag
- * @param  {number} index    The index of flickr tag
- * @param  {object} jsonData Result from flickr api
- * @return {string} Html tag for output
- */
-FlickrTag.prototype.imgFormat = function (index, jsonData) {
-    var secret,
-        format,
+* Format flickr image url and return html tag
+*
+* @param  {number} index    The index of flickr tag
+* @param  {object} jsonData Result from flickr api
+* @return {string} Html tag for output
+*/
+FlickrTag.prototype.imgFormat = function (idx, jsonData) {
+    var secret = '',
+        format = '',
         size,
         photoSize,
-        flickrTags   = this.flickrTags,
         imgAttr = {};
 
-    switch (flickrTags[index].size) {
+    var tagObj = this.flickrTags[idx];
+
+    switch (tagObj.size) {
         case 'o':
-            secret = jsonData.photo.originalsecret;
-            format = jsonData.photo.originalformat;
-            size = '_' + flickrTags[index].size;
+            if (typeof(jsonData.photo.originalsecret) !== 'undefined') {
+                secret = jsonData.photo.originalsecret;
+                format = jsonData.photo.originalformat;
+            } else {
+                hexo.log.err('Can not access the Flickr id '+ tagObj.id +' original size');
+            }
+            size = '_' + tagObj.size;
             break;
         case '-':
             secret = jsonData.photo.secret;
@@ -110,7 +193,7 @@ FlickrTag.prototype.imgFormat = function (index, jsonData) {
         default:
             secret = jsonData.photo.secret;
             format = 'jpg';
-            size = '_' + flickrTags[index].size;
+            size = '_' + tagObj.size;
     }
 
     imgAttr.src = util.format(URL_PATTERN,
@@ -122,20 +205,20 @@ FlickrTag.prototype.imgFormat = function (index, jsonData) {
         format
     );
 
-    photoSize = PHOTO_SIZE[flickrTags[index].size];
+    photoSize = PHOTO_SIZE[tagObj.size];
     for (var key in photoSize) {
         imgAttr[key] = photoSize[key];
     }
 
-    imgAttr.class = flickrTags[index].classes.join(' ');
+    imgAttr.class = tagObj.classes.join(' ');
     imgAttr.alt = this.htmlEscape(jsonData.photo.title._content);
 
     return htmlTag('img', imgAttr);
 };
 
-
 /**
- * covert tag args to object with default value
+ * Covert tag args to object with default value
+ *
  * @param {array} args Tag args.
  * @return {object} Tag attrs object.
  */
@@ -176,7 +259,8 @@ FlickrTag.prototype.convertAttr = function (args) {
 
 /**
  * Replace string to HTML encode if img tag's alt attribute sting with &,",',<,>
- * @param  {string} str string form img tag's alt 
+ *
+ * @param  {string} str string form img tag's alt
  * @return {string}     HTML encode string
  */
 FlickrTag.prototype.htmlEscape = function (str) {
