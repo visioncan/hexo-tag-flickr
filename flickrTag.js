@@ -160,6 +160,51 @@ FlickrTag.prototype.httpGet = function (idx, postIndex, callback) {
 };
 
 /**
+* Format flickr image url and return source
+*
+* @param  {number} index    The index of flickr tag
+* @param  {object} jsonData Result from flickr api
+* @return {string} image source for output
+*/
+FlickrTag.prototype.srcFormat = function (idx, jsonData) {
+    var secret = '',
+        format = '',
+        size;
+
+    var tagObj = this.flickrTags[idx];
+
+    switch (tagObj.size) {
+        case 'o':
+            if (typeof(jsonData.photo.originalsecret) !== 'undefined') {
+                secret = jsonData.photo.originalsecret;
+                format = jsonData.photo.originalformat;
+            } else {
+                hexo.log.err('Can not access the Flickr id '+ tagObj.id +' original size');
+            }
+            size = '_' + tagObj.size;
+            break;
+        case '-':
+            secret = jsonData.photo.secret;
+            format = 'jpg';
+            size = '';
+            break;
+        default:
+            secret = jsonData.photo.secret;
+            format = 'jpg';
+            size = '_' + tagObj.size;
+    }
+
+    return util.format(URL_PATTERN,
+        jsonData.photo.farm,
+        jsonData.photo.server,
+        jsonData.photo.id,
+        secret,
+        size,
+        format
+    );
+};
+
+/**
 * Format flickr image url and return html tag
 *
 * @param  {number} index    The index of flickr tag
