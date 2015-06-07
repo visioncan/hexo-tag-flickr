@@ -1,43 +1,9 @@
-var FlickrTag  = require('./flickrTag'),
-    async      = require('async'),
-    APIKey     = hexo.config.flickr_api_key || false;
+'use strict';
 
-hexo.extend.filter.register('before_post_render', function (data, callback) {
-  if (!data.photos) return callback(null, data);
-
-  var postIndex = -1,
-      idx = - 1,
-      flickrHttpGet = function(photo, mapCallback) {
-          if (photo.split(' ')[0] != 'flickr') {
-              mapCallback(null, photo);
-          }
-
-          FlickrTag.postCounter.push(0);
-          FlickrTag.add(photo.split(' ').slice(1));
-
-          postIndex = FlickrTag.postCounter.length - 1;
-          idx = FlickrTag.length() - 1;
-
-          FlickrTag.httpGet(idx, postIndex, function(_idx, jsonData) {
-              mapCallback(null, FlickrTag.srcFormat(_idx, jsonData));
-          });
-      }
-
-    async.map(data.photos, flickrHttpGet, function(err, results) {
-        data.photos = results;
-        callback(null, data);
-    });
-});
-
-hexo.extend.filter.register('after_post_render', function (data, callback) {
-    if (FlickrTag.hasFlickrTag(data)) {
-        FlickrTag.replacePhotos(data, function (data) {
-            return callback(null, data);
-        });
-    } else {
-        return callback(null, data);
-    }
-});
+var https = require('https');
+var Promise = require('bluebird');
+var tagUtil = require('./flickrTagUtil');
+var APIKey = hexo.config.flickr_api_key || false;
 
 /**
  * Filckr tag
@@ -45,15 +11,40 @@ hexo.extend.filter.register('after_post_render', function (data, callback) {
  * Syntax:
  * {% flickr [class1,class2,classN] photo_id [size] %}
  */
-hexo.extend.tag.register('flickr', function (args, content) {
-    if (!APIKey) {
-        throw new Error('flickr_api_key configuration is required');
-    }
+var tagRegister = function (args, content) {
+  if (!APIKey) {
+    throw new Error('flickr_api_key configuration is required');
+  }
 
-    if (args[0] !== '') {
-        FlickrTag.add(args);
-        return '<img data-tag="hexoflickrescape' + (FlickrTag.length() - 1) + '">';
-    } else {
-        return '';
-    }
-});
+  var tag = tagUtil.convertAttr(args);
+
+  return new Promise(function (resolve, reject) {
+    var url = 'https://api.flickr.com/services/rest/?method=flickr.photos.getInfo' +
+      '&api_key=' + APIKey +
+      '&photo_id=' + tag.id +
+      '&format=json' +
+      '&nojsoncallback=1';
+
+    https.get(url, function (res) {
+      var data = '';
+
+      res.on('data', function (chunk) {
+        data += chunk;
+      });
+
+      res.on('end', function () {
+        var result = JSON.parse(data);
+        if (result.stat === 'ok') {
+          resolve(tagUtil.imgFormat(tag, result));
+        } else {
+          hexo.log.err('Flickr Tag: Error: ' + tag.id + ' ' +  result.message);
+        }
+      });
+    }).on('error', function (e) {
+      hexo.log.err('Fetch Flickr API error: ' + e);
+      return reject(e);
+    });
+  });
+};
+
+hexo.extend.tag.register('flickr', tagRegister, {async: true});
