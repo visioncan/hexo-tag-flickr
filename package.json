@@ -19,7 +19,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^2.9.8"
+    "bluebird": "^2.9.8",
+    "hexo-util": "^0.1.7"
   },
   "devDependencies": {
     "mocha": "^2.0.1",
