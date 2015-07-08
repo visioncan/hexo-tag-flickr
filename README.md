@@ -42,7 +42,27 @@ Will output the HTML:
 <img src="http://farm6.staticflickr.com/5445/9528576237_b87fc8f98b_z.jpg" width="640" class="photo" alt="九份-阿妹茶樓">
 ```
 
-Available size:
+### Gallery post
+
+in Front-matter:
+
+```
+photos: 
+- flickr 9528576237 m
+- flickr 15905712665 z
+---
+```
+
+Will convert to image url for gallery post:
+
+```
+photos: [ 
+  'https://farm6.staticflickr.com/5445/9528576237_b87fc8f98b_m.jpg',
+  'https://farm8.staticflickr.com/7498/15905712665_73705e7986_z.jpg'
+]
+```
+
+## Available size:
 
 * `s` small square 75x75
 * `q` large square 150x150
