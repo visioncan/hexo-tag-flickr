@@ -1,6 +1,6 @@
 {
   "name": "hexo-tag-flickr",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Embed flickr photo tag plugin for Hexo",
   "main": "index",
   "repository": {

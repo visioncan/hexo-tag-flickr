@@ -95,7 +95,7 @@ var flickrTagUtil = {
     imgAttr.class = tag.classes.join(' ');
     imgAttr.alt = hexoUtil.escapeHTML(jsonData.photo.title._content);
 
-    return hexoUtil.htmlTag('img', imgAttr);
+    return imgAttr;
   }
 };
 
