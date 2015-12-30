@@ -91,6 +91,7 @@ hexo.extend.filter.register('pre', function(data) {
     var tagArgs = photoTag.slice(1);
 
     return promiseRequest(tagArgs).then(function (imgAttr) {
+      if (imgAttr.alt) return imgAttr.src + ' "' + imgAttr.alt + '"';
       return imgAttr.src;
     }, function (err) {
       hexo.log.err(err);
