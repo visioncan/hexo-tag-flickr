@@ -63,7 +63,7 @@ hexo.extend.tag.register('flickr', function (args, content) {
   return promiseRequest(args).then(function (imgAttr) {
     return hexoUtil.htmlTag('img', imgAttr);
   }, function (err) {
-    hexo.log.err(err);
+    hexo.log.error(err);
   });
 
 }, {async: true});
@@ -94,7 +94,7 @@ hexo.extend.filter.register('pre', function(data) {
       if (imgAttr.alt) return imgAttr.src + ' "' + imgAttr.alt + '"';
       return imgAttr.src;
     }, function (err) {
-      hexo.log.err(err);
+      hexo.log.error(err);
     });
   }).then(function (results) {
     data.photos = results;

@@ -61,7 +61,7 @@ var flickrTagUtil = {
           secret = jsonData.photo.originalsecret;
           format = jsonData.photo.originalformat;
         } else {
-          hexo.log.err('Can not access the Flickr id '+ tag.id +' original size');
+          hexo.log.error('Can not access the Flickr id '+ tag.id +' original size');
         }
         size = '_' + tag.size;
         break;
