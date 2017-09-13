@@ -19,6 +19,9 @@ plugins:
 # Flickr API key
 flickr_api_key: <Your API key>
 
+# Enable Cache file
+flickr_cache_file_path: hexo-tag-flickr-cache.json
+flickr_cache_expires: 2592000000
 ```
 Get your [Flickr API Key here.](http://www.flickr.com/services/api/keys/)
 
