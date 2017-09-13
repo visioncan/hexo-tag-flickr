@@ -21,7 +21,7 @@
   "dependencies": {
     "bluebird": "^2.9.8",
     "hexo-util": "^0.1.7",
-    "hexo-fs": "^0.1.5"
+    "hexo-fs": "^0.2.2"
   },
   "devDependencies": {
     "mocha": "^2.0.1",
