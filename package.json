@@ -1,6 +1,6 @@
 {
   "name": "hexo-tag-flickr",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "Embed flickr photo tag plugin for Hexo",
   "main": "index",
   "repository": {
@@ -19,16 +19,19 @@
   },
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^2.9.8",
-    "hexo-util": "^0.1.7",
-    "hexo-fs": "^0.2.2"
+    "bluebird": "^3.5.1",
+    "hexo-fs": "^0.2.2",
+    "hexo-util": "^0.6.2"
   },
   "devDependencies": {
-    "mocha": "^2.0.1",
-    "chai": "^2.3.0",
-    "cheerio": "^0.19.0"
+    "mocha": "^4.0.1",
+    "chai": "^4.1.2",
+    "cheerio": "^1.0.0-rc.2"
   },
   "bugs": {
     "url": "https://github.com/visioncan/hexo-tag-flickr/issues"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }

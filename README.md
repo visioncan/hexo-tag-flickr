@@ -82,3 +82,7 @@ Learn more about [size suffixes](https://www.flickr.com/services/api/misc.urls.h
 
 ## Note:
 This plugin is without Flickr authentication, it show only your public photos.
+
+## Contribution
+
+Run ```npm install && npm test``` to install dependencies & test the plugin (with Mocha tests)
