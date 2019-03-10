@@ -33,5 +33,9 @@
   },
   "scripts": {
     "test": "mocha"
-  }
+  },
+  "files": [
+    "index.js",
+    "flickrTagUtil.js"
+  ]
 }
