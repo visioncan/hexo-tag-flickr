@@ -1,9 +1,10 @@
+/* global hexo */
 'use strict';
 
 var util = require('util');
 var hexoUtil = require('hexo-util');
 var rPhotoId = /\d{5,}/;
-var rPhotoSize = /^[sqtmnzcbo\-]$/;
+var rPhotoSize = /^[sqtmnzcbo-]$/;
 var IMG_URL_PATTERN = 'https://farm%s.staticflickr.com/%s/%s_%s%s.%s';
 var PHOTO_SIZE = {
   's': { width: 75, height: 75 },
@@ -18,7 +19,7 @@ var PHOTO_SIZE = {
   'o': {}
 };
 var flickrTagUtil = {
-  convertAttr: function (args) {
+  convertAttr: function(args) {
     var attrs = {
       classes: [],
       id: '',
@@ -37,9 +38,9 @@ var flickrTagUtil = {
       }
     }
 
-    args = args.slice(i + 1);
+    args = args.slice(args.length);
 
-    if (args.length){
+    if (args.length) {
       if (rPhotoSize.test(args[0])) {
         attrs.size = args.shift();
       }
@@ -48,20 +49,20 @@ var flickrTagUtil = {
     return attrs;
   },
 
-  imgFormat: function (tag, jsonData) {
-    var secret = '',
-      format = '',
-      size,
-      photoSize,
-      imgAttr = {};
+  imgFormat: function(tag, jsonData) {
+    var secret = '';
+    var format = '';
+    var size,
+      photoSize;
+    var imgAttr = {};
 
     switch (tag.size) {
       case 'o':
-        if (typeof(jsonData.photo.originalsecret) !== 'undefined') {
+        if (typeof jsonData.photo.originalsecret !== 'undefined') {
           secret = jsonData.photo.originalsecret;
           format = jsonData.photo.originalformat;
         } else {
-          hexo.log.error('Can not access the Flickr id '+ tag.id +' original size');
+          hexo.log.error('Can not access the Flickr id ' + tag.id + ' original size');
         }
         size = '_' + tag.size;
         break;
@@ -89,7 +90,7 @@ var flickrTagUtil = {
 
     photoSize = PHOTO_SIZE[tag.size];
     for (var key in photoSize) {
-        imgAttr[key] = photoSize[key];
+      imgAttr[key] = photoSize[key];
     }
 
     imgAttr.class = tag.classes.join(' ');

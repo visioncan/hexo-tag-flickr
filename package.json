@@ -26,13 +26,16 @@
   "devDependencies": {
     "mocha": "^6.1.4",
     "chai": "^4.2.0",
-    "cheerio": "^1.0.0-rc.3"
+    "cheerio": "^1.0.0-rc.3",
+    "eslint": "^6.0.0",
+    "eslint-config-hexo": "^3.0.0"
   },
   "bugs": {
     "url": "https://github.com/visioncan/hexo-tag-flickr/issues"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "eslint": "eslint ."
   },
   "files": [
     "index.js",

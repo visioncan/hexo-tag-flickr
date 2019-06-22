@@ -1,8 +1,9 @@
+/* global it describe */
 'use strict';
 
 var cheerio = require('cheerio');
 var hexoUtil = require('hexo-util');
-var should = require('chai').should();
+require('chai').should();
 
 describe('Hexo Flickr Tag Plugin Util', function() {
   var tagUtil = require('../flickrTagUtil');
@@ -20,10 +21,10 @@ describe('Hexo Flickr Tag Plugin Util', function() {
     var jsonData = JSON.parse('{"photo":{"id": "9528576237", "secret": "b87fc8f98b", "server": "5445", "farm": 6, "dateuploaded": "1376748177", "isfavorite": 0, "license": 0, "safety_level": 0, "rotation": 0, "originalsecret": "2bf761518c", "originalformat": "jpg", "owner": { "nsid": "8891490@N04", "username": "visioncan", "realname": "", "location": "", "iconserver": "2891", "iconfarm": 3, "path_alias": "visioncan" }, "title": { "_content": "九份-阿妹茶樓" }}}');
 
     it('should return image attr object', function() {
-        var tag = tagUtil.convertAttr('class1 class2 9528576237 m'.split(' '));
-        tagUtil.imgFormat(tag, jsonData).should.be.an('object').have.property('src');
-        tagUtil.imgFormat(tag, jsonData).should.be.an('object').have.property('class');
-        tagUtil.imgFormat(tag, jsonData).should.be.an('object').have.property('width');
+      var tag = tagUtil.convertAttr('class1 class2 9528576237 m'.split(' '));
+      tagUtil.imgFormat(tag, jsonData).should.be.an('object').have.property('src');
+      tagUtil.imgFormat(tag, jsonData).should.be.an('object').have.property('class');
+      tagUtil.imgFormat(tag, jsonData).should.be.an('object').have.property('width');
     });
 
     it('return correct image size', function() {
