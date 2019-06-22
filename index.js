@@ -8,7 +8,6 @@ var hexoUtil = require('hexo-util');
 var tagUtil = require('./flickrTagUtil');
 var APIKey = hexo.config.flickr_api_key || false;
 
-
 // use hexo-fs
 var fs = require('hexo-fs');
 var cacheJson = [];
@@ -25,7 +24,6 @@ if (enabledCache && fs.existsSync(cacheFilePath)) {
   cacheJson = JSON.parse(cacheJson);
 }
 
-
 // return used element
 function filterElement(flJson) {
   var returnJson = {'photo': {}};
@@ -41,7 +39,6 @@ function filterElement(flJson) {
 
   return returnJson;
 }
-
 
 // push flickr photos
 function pushFlickrJson(flickrJson) {
@@ -73,7 +70,6 @@ function getFlickrCacheJson(photoId) {
   return null;
 }
 
-
 // get image size
 function getImageSize(flickrJson, photo_size) {
   var sizeInfo = {'width': 0, 'height': 0};
@@ -103,7 +99,6 @@ function getImageSize(flickrJson, photo_size) {
   return sizeInfo;
 }
 
-
 // push flickr photos
 function pushImageSizeAndExpress_flickrJson(imageSize, photo_id) {
   if (!enabledCache) return null;
@@ -126,7 +121,6 @@ function addTagHeight(imgAttr, imgSize) {
   return returnImgAttr;
 }
 
-
 /**
  * promise Flickr API request
  * @param  {Array} tagArgs Tag args ex: ['15905712665', 'z']
@@ -138,7 +132,6 @@ var promiseRequest = function(tagArgs) {
   }
 
   var tag = tagUtil.convertAttr(tagArgs);
-
 
   return new Promise(function(resolve, reject) {
 
@@ -184,7 +177,6 @@ var promiseRequest = function(tagArgs) {
 
 };
 
-
 /**
  * promise Flickr API request
  * @param  {Array} tagArgs Tag args ex: ['15905712665', 'z']
@@ -197,15 +189,11 @@ var promiseRequest_imageSize = function(tagArgs, returnImgAttr) {
 
   var tag = tagUtil.convertAttr(tagArgs);
 
-
   return new Promise(function(resolve, reject) {
-
 
     var flJson = getFlickrCacheJson(tag.id);
 
-
     if (!flJson || !flJson.photo.imgSize) {
-      // console.log("[api access getSize]photoId= " + tag.id);
       var url = 'https://api.flickr.com/services/rest/?method=flickr.photos.getSizes'
           + '&api_key=' + APIKey
           + '&photo_id=' + tag.id
@@ -239,17 +227,13 @@ var promiseRequest_imageSize = function(tagArgs, returnImgAttr) {
       });
 
     } else {
-      // console.log("[cache getSize]photoId= " + tag.id);
       return resolve(addTagHeight(tagUtil.imgFormat(tag, flJson), flJson.photo.imgSize));
     }
-
   });
-
 };
 
-
 /**
- * Filckr tag
+ * Flickr tag
  *
  * Syntax:
  * ```
@@ -258,10 +242,7 @@ var promiseRequest_imageSize = function(tagArgs, returnImgAttr) {
  */
 hexo.extend.tag.register('flickr', function(args, content) {
   return promiseRequest(args).then(function(imgAttr) {
-    // return hexoUtil.htmlTag('img', imgAttr);
     return promiseRequest_imageSize(args, imgAttr).then(function(imgAttr_internal) {
-
-      // console.log(hexoUtil.htmlTag('img', imgAttr_internal));
 
       return hexoUtil.htmlTag('img', imgAttr_internal);
     }, function(err) {
@@ -279,7 +260,6 @@ hexo.extend.filter.register('after_generate', function() {
     fs.writeFileSync(cacheFilePath, JSON.stringify(cacheJson));
   }
 });
-
 
 /**
  * For gallery post
@@ -311,7 +291,4 @@ hexo.extend.filter.register('pre', function(data) {
     data.photos = results;
     return data;
   });
-
 });
-
-

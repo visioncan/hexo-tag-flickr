@@ -27,7 +27,9 @@ var flickrTagUtil = {
       isWithLink: false
     };
 
-    for (var i = 0; i < args.length; i++) {
+    var i;
+
+    for (i = 0; i < args.length; i++) {
       var item = args[i];
 
       if (rPhotoId.test(item)) {
@@ -38,7 +40,7 @@ var flickrTagUtil = {
       }
     }
 
-    args = args.slice(args.length);
+    args = args.slice(i + 1);
 
     if (args.length) {
       if (rPhotoSize.test(args[0])) {
