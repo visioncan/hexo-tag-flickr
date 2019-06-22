@@ -27,7 +27,7 @@ var flickrTagUtil = {
       isWithLink: false
     };
 
-    var i;
+    var i = 0;
 
     for (i = 0; i < args.length; i++) {
       var item = args[i];
